@@ -77,13 +77,14 @@
               <div class="nav-item text-nowrap">
                 <!-- <div class="dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <?php echo get_avatar(get_current_user_id(), 30); ?>
+                    <?php //echo get_avatar(get_current_user_id(), 30); ?>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-lg-end">
                     <li><a class="dropdown-item" href="<?php echo wp_logout_url(); ?>">Sign out</a></li>
                   </ul>
                 </div>
               </div> -->
+              <a href="<?php echo esc_url(site_url('/my-notes')); ?>" class="btn btn-light ms-3">My Notes</a>
               <a href="<?php echo wp_logout_url(); ?>" class="btn btn-dark ms-3">
                 <span class=""><?php echo get_avatar(get_current_user_id(), 30); ?></span>
                 <span class="">logout</span>

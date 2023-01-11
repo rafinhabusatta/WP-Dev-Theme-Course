@@ -3,7 +3,9 @@
 // Our modules / classes
 //import GoogleMap from './modules/GoogleMap'
 import Search from './modules/Search'
+import MyNotes from './modules/MyNotes'
 
 // Instantiate a new object using our modules/classes
 //const googleMap = new GoogleMap()
 const search = new Search()
+const myNotes = new MyNotes()

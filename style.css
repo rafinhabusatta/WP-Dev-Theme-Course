@@ -137,6 +137,16 @@ body.login {
   background-position: center;
 }
 
+.login form {
+  background: var(--white);
+  padding: 26px;
+  border-radius: 4px;
+}
+
+.resize-none {
+  resize: none;
+}
+
 /* Personalized Classes */
 
 .header-banner {

@@ -2053,6 +2053,145 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/modules/MyNotes.js":
+/*!********************************!*\
+  !*** ./src/modules/MyNotes.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+
+
+class MyNotes {
+  constructor() {
+    this.events();
+  }
+  events() {
+    document.querySelector('#myNotes').addEventListener('click', '.delete-note', e => this.deleteNote(e));
+    document.querySelector('#myNotes').addEventListener('click', '.edit-note', e => this.editNote(e));
+    document.querySelector('#myNotes').addEventListener('click', '.update-note', e => this.updateNote(e));
+    document.querySelector('.create-note').addEventListener('click', () => this.createNote());
+  }
+
+  // Methods
+  createNote() {
+    let newPost = {
+      title: jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-title').val(),
+      content: jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-body').val(),
+      status: 'publish'
+    };
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
+      // xhr = xml http request
+      url: data.root_url + '/wp-json/wp/v2/note/',
+      type: 'POST',
+      data: newPost,
+      success: response => {
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-title, .create-body').val('');
+        jquery__WEBPACK_IMPORTED_MODULE_0___default()(`<li data-id="${response.id}" class="note-item">
+        <input class="note-title form-control-plaintext" readonly value="${response.title.raw}">
+        <div class="mt-3">
+          <span class="btn btn-success edit-note">Edit</span>
+          <span class="btn btn-danger delete-note">Delete</span>
+        </div>
+        <textarea class="note-body form-control-plaintext mt-3 resize-none" readonly name="" id="">${response.content.raw}</textarea>
+        <span class="btn btn-success update-note d-none mt-3">Save</span>
+      </li>`).prependTo('#myNotes').hide().slideDown();
+        console.log('Congrats');
+        console.log(response);
+      },
+      error: response => {
+        console.log('Sorry');
+        console.log(response);
+      }
+    });
+  }
+  editNote(e) {
+    let thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents('li');
+    if (thisNote.data('state') == 'editable') {
+      // Make read only
+      this.makeNoteReadOnly(thisNote);
+    } else {
+      // Make editable
+      this.makeNoteEditable(thisNote);
+    }
+  }
+  makeNoteReadOnly(thisNote) {
+    thisNote.find('.note-title, .note-body').attr('readonly', 'readonly').addClass('form-control-plaintext resize-none').removeClass('form-control');
+    thisNote.find('.update-note').addClass('d-none').removeClass('d-block');
+    thisNote.find('.edit-note').html('Edit');
+    thisNote.data('state', 'cancel');
+  }
+  makeNoteEditable(thisNote) {
+    thisNote.find('.note-title, .note-body').removeAttr('readonly').addClass('form-control').removeClass('form-control-plaintext resize-none');
+    thisNote.find('.update-note').addClass('d-block').removeClass('d-none');
+    thisNote.find('.edit-note').html('Cancel');
+    thisNote.data('state', 'editable');
+  }
+  // async deleteNote() {
+  //   axios({
+  //     method: 'delete',
+  //     url: data.root_url + '/wp-json/wp/v2/note/103',
+  //     headers: {
+  //       'X-WP-Nonce': data.nonce
+  //     }
+  //   });
+  // }
+
+  deleteNote(e) {
+    let thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents('li');
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
+      // xhr = xml http request
+      url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
+      type: 'DELETE',
+      success: response => {
+        thisNote.slideUp();
+        console.log('Congrats');
+        console.log(response);
+      },
+      error: response => {
+        console.log('Sorry');
+        console.log(response);
+      }
+    });
+  }
+  updateNote(e) {
+    let thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents('li');
+    let updatedPost = {
+      title: thisNote.find('.note-title').val(),
+      content: thisNote.find('.note-body').val()
+    };
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
+      // xhr = xml http request
+      url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
+      type: 'POST',
+      data: updatedPost,
+      success: response => {
+        this.makeNoteReadOnly(thisNote);
+        console.log('Congrats');
+        console.log(response);
+      },
+      error: response => {
+        console.log('Sorry');
+        console.log(response);
+      }
+    });
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MyNotes);
+
+/***/ }),
+
 /***/ "./src/modules/Search.js":
 /*!*******************************!*\
   !*** ./src/modules/Search.js ***!
@@ -2253,6 +2392,17 @@ class Search {
 
 /***/ }),
 
+/***/ "jquery":
+/*!*************************!*\
+  !*** external "jQuery" ***!
+  \*************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["jQuery"];
+
+/***/ }),
+
 /***/ "./node_modules/axios/package.json":
 /*!*****************************************!*\
   !*** ./node_modules/axios/package.json ***!
@@ -2341,15 +2491,18 @@ var __webpack_exports__ = {};
   \**********************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
+/* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
 //import '../css/style.scss'
 
 // Our modules / classes
 //import GoogleMap from './modules/GoogleMap'
 
 
+
 // Instantiate a new object using our modules/classes
 //const googleMap = new GoogleMap()
 const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_0__["default"]();
+const myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_1__["default"]();
 })();
 
 /******/ })()
