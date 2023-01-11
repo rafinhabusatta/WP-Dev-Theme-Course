@@ -16,7 +16,7 @@
               <div class="card mb-4">
                 <div class="card-body">
                   <h5 class="card-title"><?php the_title(); ?></h5>
-                  <p class="card-text"><?php echo wp_trim_words(get_the_content(), 18); ?></p>
+                  <p class="card-text"><?php echo wp_trim_words(get_field('main_body_content'), 18); ?></p>
                   <a href="<?php the_permalink(); ?>" class="btn btn-primary">Apply</a>
                 </div>
               </div>

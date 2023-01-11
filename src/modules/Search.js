@@ -1,75 +1,14 @@
-// class Search {
-//   // 1. Describe and create/initiate our object
-//   constructor() {
-//     this.resultsDiv = document.querySelector('#search-overlay_results')
-//     this.openButton = document.querySelector('.js-search-trigger')
-//     this.closeButton = document.querySelector('.search-overlay_close')
-//     this.searchOverlay = document.querySelector('.search-overlay')
-//     this.searchField = document.querySelector('#search-term')
-//     this.events()
-//     this.isOverlayOpen = false
-//   }
-
-//   // 2. Events
-//   events() {
-//     console.log(this.openButton)
-//     console.log(this.closeButton)
-//     console.log(this.searchOverlay)
-//     console.log(this.searchField)
-
-//     this.openButton.addEventListener('click', () => this.openOverlay())
-//     this.closeButton.addEventListener('click', () => this.closeOverlay())
-//     document.addEventListener('keydown', () => this.keyPressDispatcher(e))
-//     this.searchField.addEventListener('keydown', () => this.typingLogic())
-//   }
-
-//   // 3. Methods (function, action...)
-//   typingLogic() {
-//     clearTimeout(this.typingTimer)
-//     this.typingTimer = setTimeout(function () {
-//       console.log('timeout test')
-//     }, 2000)
-//   }
-//   openOverlay() {
-//     document.querySelector('.search-overlay').classList.remove('d-none')
-//     //document.querySelector('.search-overlay').classList.add('d-block')
-//     //$('.search-overlay').removeClass('d-none')
-//     document.body.classList.add('body-no-scroll')
-//     this.isOverlayOpen = true
-//     alert('openOverlay')
-//   }
-
-//   closeOverlay() {
-//     document.querySelector('.search-overlay').classList.add('d-none')
-//     //this.searchOverlay.addClass('d-none')
-//     document.body.classList.remove('body-no-scroll')
-//     this.isOverlayOpen = false
-//     alert('closeOverlay')
-//   }
-
-//   keyPressDispatcher(e) {
-//     if (e.keyCode == 83 && !this.isOverlayOpen) {
-//       this.openOverlay()
-//     }
-//     if (e.keyCode == 27 && this.isOverlayOpen) {
-//       this.closeOverlay()
-//     }
-//   }
-// }
-
-// export default Search
-
-import $ from 'jquery'
+import axios from 'axios'
 
 class Search {
   // 1. describe and create/initiate our object
   constructor() {
     this.addSearchHTML()
-    this.resultsDiv = $('#search-results')
-    this.openButton = $('.js-search-trigger')
-    this.closeButton = $('.search-overlay_close')
-    this.searchOverlay = $('.search-overlay')
-    this.searchField = $('#search-term')
+    this.resultsDiv = document.querySelector('#search-results')
+    this.openButton = document.querySelector('.js-search-trigger')
+    this.closeButton = document.querySelector('.search-overlay_close')
+    this.searchOverlay = document.querySelector('.search-overlay')
+    this.searchField = document.querySelector('#search-term')
     this.events()
     this.isOverlayOpen = false
     this.isSpinnerVisible = false
@@ -79,76 +18,169 @@ class Search {
 
   // 2. events
   events() {
-    this.openButton.on('click', this.openOverlay.bind(this))
-    this.closeButton.on('click', this.closeOverlay.bind(this))
-    $(document).on('keydown', this.keyPressDispatcher.bind(this))
-    this.searchField.on('keyup', this.typingLogic.bind(this))
+    this.openButton.addEventListener('click', () => this.openOverlay())
+    this.closeButton.addEventListener('click', () => this.closeOverlay())
+    document.addEventListener('keydown', e => this.keyPressDispatcher(e))
+    this.searchField.addEventListener('keyup', () => this.typingLogic())
   }
 
   // 3. methods (function, action...)
   typingLogic() {
-    if (this.searchField.val() != this.previousValue) {
+    if (this.searchField.value != this.previousValue) {
       clearTimeout(this.typingTimer)
-      if (this.searchField.val()) {
+      if (this.searchField.value) {
         if (!this.isSpinnerVisible) {
-          this.resultsDiv.html(`
+          this.resultsDiv.innerHTML = `
             <div class="d-flex justify-content-center">
               <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
-            `)
+            `
           this.isSpinnerVisible = true
         }
         this.typingTimer = setTimeout(this.getResults.bind(this), 750)
       } else {
-        this.resultsDiv.html(`
+        this.resultsDiv.innerHTML = `
         <h2></h2>
-        `)
+        `
         this.isSpinnerVisible = false
       }
     }
-    this.previousValue = this.searchField.val() // get the value of the search field
+    this.previousValue = this.searchField.value // get the value of the search field
   }
 
-  getResults() {
-    $.when(
-      $.getJSON(
-        data.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()
-      ),
-      $.getJSON(
-        data.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val()
+  async getResults() {
+    try {
+      const response = await axios.get(
+        data.root_url +
+          '/wp-json/al-advogados/v1/search?term=' +
+          this.searchField.value
       )
-    ).then(
-      (posts, pages) => {
-        let resultadosCombinados = posts[0].concat(pages[0])
-        this.resultsDiv.html(`
-        <h2>Informações Gerais</h2>
-        ${
-          resultadosCombinados.length
-            ? '<ul class="results-list">'
-            : '<p>Não há resultados</p>'
-        }
-          ${resultadosCombinados
-            .map(
-              item =>
-                `<li>
-                  <a href="${item.link}">
-                    ${item.title.rendered}
-                  </a>  ${item.type == 'post' ? `by ${item.authorName}` : ''}
-                </li>`
-            )
-            .join('')}
-        ${resultadosCombinados.length ? '</ul>' : ''}
-        `)
-        this.isSpinnerVisible = false
-      },
-      () => {
-        this.resultsDiv.html(
-          '<p>Algo deu errado, por favor tente novamente.</p>'
-        )
-      }
-    )
+      const results = response.data
+
+      this.resultsDiv.innerHTML = `
+        <div class="row">
+          <div class="col-4">
+            <h2>General Information</h2>
+            ${
+              results.generalInfo.length
+                ? '<ul class="results-list">'
+                : '<p>Não há resultados</p>'
+            }
+              ${results.generalInfo
+                .map(
+                  item =>
+                    `<li>
+                      <a href="${item.permalink}">
+                        ${item.title}
+                      </a>  
+                      ${item.postType == 'post' ? `by ${item.authorName}` : ''}
+                    </li>`
+                )
+                .join('')}
+            ${results.generalInfo.length ? '</ul>' : ''}
+          </div>
+          <div class="col-4">
+            <h2>Programs</h2>
+            ${
+              results.programs.length
+                ? '<ul class="results-list">'
+                : `<p>Não há programas deste tipo. <a href="${data.root_url}/programs">Veja todos os programas</a></p>`
+            }
+              ${results.programs
+                .map(
+                  item =>
+                    `<li>
+                      <a href="${item.permalink}">
+                        ${item.title}
+                      </a>  
+                    </li>`
+                )
+                .join('')}
+            ${results.programs.length ? '</ul>' : ''}
+            <hr>
+            <h2>Professors</h2>
+            ${
+              results.professors.length
+                ? '<div classs="row">'
+                : `<p>Não há professores correspondentes.</p>`
+            }
+              ${results.professors
+                .map(
+                  item =>
+                    `<div class="col-12 col-md-6 col-lg-3">
+                      <div class="card mb-4">
+                        <div class="card-body">
+                          <img src="${item.image}" class="card-img-top" alt="Professor <?php the_title(); ?>">
+        
+                          <h5 class="card-title">${item.title}</h5>
+                          <p class="card-text">
+                            <?php 
+                              if(has_excerpt()) {
+                                echo get_the_excerpt();
+                              }else {
+                                echo wp_trim_words(get_the_content(), 18);
+                              } 
+                            ?>
+                          </p>
+                          <a href="${item.permalink}" class="btn btn-primary">Read more</a>
+                        </div>
+                      </div>
+                    </div>`
+                )
+                .join('')}
+            ${results.professors.length ? '</div>' : ''}
+          </div>
+          <div class="col-4">
+            <h2>Campuses</h2>
+            ${
+              results.campuses.length
+                ? '<ul class="results-list">'
+                : `<p>Não há nenhum campus de acordo com sua buscas. <a href="${data.root_url}/campuses">Veja todos os campi.</a></p>`
+            }
+              ${results.campuses
+                .map(
+                  item =>
+                    `<li>
+                      <a href="${item.permalink}">
+                        ${item.title}
+                      </a>
+                    </li>`
+                )
+                .join('')}
+            ${results.campuses.length ? '</ul>' : ''}
+            <hr>
+            <h2>Events</h2>
+            ${
+              results.events.length
+                ? '<ul class="results-list">'
+                : `<p>Não há nenhum campus de acordo com sua buscas. <a href="${data.root_url}/events">Veja todos os eventos.</a></p>`
+            }
+              ${results.events
+                .map(
+                  item =>
+                    `<div class="col-12 col-md-6 col-lg-4">
+                      <div class="card mb-4">
+                        <div class="card-body bg-blue">
+                          <h5 class="card-title">${item.title}</h5>
+                          <p>
+                            Data: ${item.date}
+                          </p>
+                          <p class="card-text">${item.description}</p>
+                          <a href="${item.permalink}" class="btn btn-primary">Read more</a>
+                        </div>
+                      </div>
+                    </div>`
+                )
+                .join('')}
+          </div>
+        </div>
+      `
+      this.isSpinnerVisible = false
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   keyPressDispatcher(e) {
@@ -166,46 +198,50 @@ class Search {
   }
 
   openOverlay() {
-    this.searchOverlay.removeClass('d-none')
-    $('body').addClass('body-no-scroll')
-    this.searchField.val('')
+    this.searchOverlay.classList.remove('d-none')
+    document.body.classList.add('body-no-scroll')
+    this.searchField.value = ''
     console.log('our open method just ran!')
     this.isOverlayOpen = true
     setTimeout(() => this.searchField.focus(), 300)
+    return false
   }
 
   closeOverlay() {
-    this.searchOverlay.addClass('d-none')
-    $('body').removeClass('body-no-scroll')
+    this.searchOverlay.classList.add('d-none')
+    document.body.classList.remove('body-no-scroll')
     console.log('our close method just ran!')
     this.isOverlayOpen = false
   }
 
   addSearchHTML() {
-    $('body').append(`
-    <div class="container-fluid search-overlay d-none">
-      <div class="row mt-5">
-        <div class="col-12 d-flex flex-row">
-          <input class="form-control me-2 search-term"
-            type="search"
-            placeholder="What are you looking for?"
-            aria-label="Pesquisar" id="search-term"
-            autocomplete="off"
-          />
-          <span class="btn btn-outline-success search-overlay_close" type="submit">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" search-overlay_icon>
-              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-            </svg>
-          </span>
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `
+      <div class="container-fluid search-overlay d-none">
+        <div class="row mt-5">
+          <div class="col-12 d-flex flex-row">
+            <input class="form-control me-2 search-term"
+              type="search"
+              placeholder="What are you looking for?"
+              aria-label="Pesquisar" id="search-term"
+              autocomplete="off"
+            />
+            <span class="btn btn-outline-success search-overlay_close" type="submit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16" search-overlay_icon>
+                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="row mt-5 text-white">
+          <div id="search-results" class="col-12">
+            
+          </div>
         </div>
       </div>
-      <div class="row mt-5 text-white">
-        <div id="search-results" class="col-12">
-          
-        </div>
-      </div>
-    </div>
-    `)
+    `
+    )
   }
 }
 

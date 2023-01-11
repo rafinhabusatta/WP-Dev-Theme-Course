@@ -65,12 +65,36 @@
             placeholder="Pesquisar"
             aria-label="Pesquisar"
           /> -->
-          <span class="btn btn-outline-success js-search-trigger" type="submit">
+          <a href="<?php echo esc_url(site_url('/search')); ?>" class="btn btn-outline-success js-search-trigger" type="submit">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
               <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
             </svg>
-          </span>
-        </form> 
+          </a>
+        </form>
+        <?php 
+          if(is_user_logged_in()) { ?>
+            <div class="navbar-nav ms-3">
+              <div class="nav-item text-nowrap">
+                <!-- <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <?php echo get_avatar(get_current_user_id(), 30); ?>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-lg-end">
+                    <li><a class="dropdown-item" href="<?php echo wp_logout_url(); ?>">Sign out</a></li>
+                  </ul>
+                </div>
+              </div> -->
+              <a href="<?php echo wp_logout_url(); ?>" class="btn btn-dark ms-3">
+                <span class=""><?php echo get_avatar(get_current_user_id(), 30); ?></span>
+                <span class="">logout</span>
+              </a>
+            </div>
+          <?php } else { ?>
+            <a href="<?php echo wp_login_url(); ?>" class="btn btn-light ms-3">login</a>
+            <a href="<?php echo wp_registration_url(); ?>" class="btn btn-light ms-3">sign up</a> 
+         <?php }
+        ?>
+        
       </div>
     </div>
   </nav>

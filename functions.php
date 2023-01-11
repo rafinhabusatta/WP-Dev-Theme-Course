@@ -111,3 +111,44 @@ function aladvogadosMapKey($api) {
   return $api;
 }
 add_filter('acf/fields/google_map/api', 'aladvogadosMapKey');
+
+//Redirection user to home
+add_action('wp_init', 'redirectToHome');
+function redirectToHome() {
+  $curentUser = wp_get_current_user();
+  if (count($curentUser->roles) == 1 AND $curentUser->roles[0] == 'subscriber') {
+    wp_redirect(site_url('/'));
+    exit;
+  }
+}
+
+//Remove admin bar
+add_action('wp_loaded', 'noSubsAdminBar');
+function noSubsAdminBar() {
+  $curentUser = wp_get_current_user();
+  if (count($curentUser->roles) == 1 AND $curentUser->roles[0] == 'subscriber') {
+    show_admin_bar(false);
+  }
+}
+
+// Custom login Screen
+
+// Change logo url
+add_filter('login_headerurl', 'ourHeaderUrl');
+function ourHeaderUrl() {
+  return esc_url(site_url('/'));
+}
+
+// custom css
+add_action('login_enqueue_scripts', 'LoginCSS');
+function LoginCSS() {
+  wp_enqueue_style('aladvogados_main_styles', get_stylesheet_uri());
+  wp_enqueue_style('google_fonts', '//fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  wp_enqueue_style('bootstrap_css', '//cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css');
+}
+
+// Change title
+add_filter('login_headertitle', 'ourLoginTitle');
+function ourLoginTitle() {
+  return get_bloginfo('name');
+}

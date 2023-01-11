@@ -124,6 +124,19 @@ li {
   list-style: none;
 }
 
+body.login {
+  background: var(--blue-800);
+}
+
+.login h1 a {
+  background-image: url(assets/Logo.svg);
+  background-size: contain;
+  width: 100%;
+  height: 100px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 /* Personalized Classes */
 
 .header-banner {

@@ -13,7 +13,7 @@
             <li class="breadcrumb-item active" aria-current="page"><?php the_title(); ?></li>
           </ol>
         </nav>
-        <?php the_content(); ?>
+        <?php get_field('main_body_content') ?>
       </div>
       <?php
         $relatedProfessors = new WP_QUERY(array(
