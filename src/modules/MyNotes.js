@@ -3,22 +3,28 @@ import axios from 'axios'
 
 class MyNotes {
   constructor() {
-    this.events()
+    if (document.querySelectore('#myNotes')) {
+      axios.defaults.headers.common['X-WP-Nonce'] = data.nonce
+      this.myNotes = document.querySelector('#myNotes')
+      this.events()
+    }
   }
 
   events() {
-    document
-      .querySelector('#myNotes')
-      .addEventListener('click', '.delete-note', e => this.deleteNote(e))
-    document
-      .querySelector('#myNotes')
-      .addEventListener('click', '.edit-note', e => this.editNote(e))
-    document
-      .querySelector('#myNotes')
-      .addEventListener('click', '.update-note', e => this.updateNote(e))
-    document
-      .querySelector('.create-note')
-      .addEventListener('click', () => this.createNote())
+    // this.myNotes.addEventListener('click', '.delete-note', e =>
+    //   this.deleteNote(e)
+    // )
+    // this.myNotes.addEventListener('click', '.edit-note', e => this.editNote(e))
+    // this.myNotes.addEventListener('click', '.update-note', e =>
+    //   this.updateNote(e)
+    // )
+    // document
+    //   .querySelector('.create-note')
+    //   .addEventListener('click', () => this.createNote())
+    $('#my-notes').on('click', '.delete-note', this.deleteNote)
+    $('#my-notes').on('click', '.edit-note', this.editNote.bind(this))
+    $('#my-notes').on('click', '.update-note', this.updateNote.bind(this))
+    $('.create-note').on('click', this.createNote.bind(this))
   }
 
   // Methods
@@ -51,15 +57,22 @@ class MyNotes {
         console.log(response)
       },
       error: response => {
+        if (
+          response.responseText == 'Você atingiu o limite de criação de notas.'
+        ) {
+          document
+            .querySelector('.limit-message-note')
+            .classList.remove('d-none')
+        }
         console.log('Sorry')
         console.log(response)
       }
     })
   }
   editNote(e) {
-    let thisNote = $(e.target).parents('li')
+    let thisNote = this.findNearestParentLi(e.target)
 
-    if (thisNote.data('state') == 'editable') {
+    if (thisNote.getAttribute('data-state') == 'editable') {
       // Make read only
       this.makeNoteReadOnly(thisNote)
     } else {
@@ -70,29 +83,48 @@ class MyNotes {
 
   makeNoteReadOnly(thisNote) {
     thisNote
-      .find('.note-title, .note-body')
-      .attr('readonly', 'readonly')
-      .addClass('form-control-plaintext resize-none')
-      .removeClass('form-control')
+      .querySelector('.note-title')
+      .setAttribute('readonly', 'readonly')
+      .classList.add('form-control-plaintext resize-none')
+      .classList.remove('form-control')
 
-    thisNote.find('.update-note').addClass('d-none').removeClass('d-block')
+    thisNote
+      .querySelector('.note-body')
+      .setAttribute('readonly', 'readonly')
+      .classList.add('form-control-plaintext resize-none')
+      .classList.remove('form-control')
 
-    thisNote.find('.edit-note').html('Edit')
-    thisNote.data('state', 'cancel')
+    thisNote
+      .querySelector('.update-note')
+      .classList.add('d-none')
+      .classList.remove('d-block')
+
+    thisNote.querySelector('.edit-note').html('Edit')
+    thisNote.setAttribute('state', 'cancel')
   }
+
   makeNoteEditable(thisNote) {
     thisNote
-      .find('.note-title, .note-body')
-      .removeAttr('readonly')
-      .addClass('form-control')
-      .removeClass('form-control-plaintext resize-none')
+      .querySelector('.note-title')
+      .removeAttribute('readonly')
+      .classList.add('form-control')
+      .classList.remove('form-control-plaintext resize-none')
 
-    thisNote.find('.update-note').addClass('d-block').removeClass('d-none')
+    thisNote
+      .querySelector('.note-body')
+      .removeAttribute('readonly')
+      .classList.add('form-control')
+      .classList.remove('form-control-plaintext resize-none')
 
-    thisNote.find('.edit-note').html('Cancel')
-    thisNote.data('state', 'editable')
+    thisNote
+      .querySelector('.update-note')
+      .classList.add('d-block')
+      .classList.remove('d-none')
+
+    thisNote.querySelector('.edit-note').html('Cancel')
+    thisNote.setAttribute('data-state', 'editable')
   }
-  // async deleteNote() {
+  // async deleteNote(e) {
   //   axios({
   //     method: 'delete',
   //     url: data.root_url + '/wp-json/wp/v2/note/103',
@@ -109,6 +141,9 @@ class MyNotes {
       url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
       type: 'DELETE',
       success: response => {
+        if (response.userNoteCount < 5) {
+          document.querySelector('.limit-message-note').classList.add('d-none')
+        }
         thisNote.slideUp()
         console.log('Congrats')
         console.log(response)

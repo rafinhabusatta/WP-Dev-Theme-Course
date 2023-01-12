@@ -19,8 +19,10 @@ get_header();
           <input type="text" placeholder="Title" class="form-control mb-3 create-title">
           <textarea class="form-control mb-3 create-body" placeholder="Your note here..."></textarea>
           <span class="btn btn-success create-note">Create note</span>
+          <span class="d-none limit-message-note">Você atingiu o limite de criação de notas.</span>
         </div>
       </div>
+      <hr>
       <ul id="myNotes">
       <?php 
         $userNotes = new WP_Query(array(
@@ -32,14 +34,15 @@ get_header();
         while($userNotes->have_posts()) {
           $userNotes->the_post(); ?>
           <li data-id="<?php the_ID(); ?>" class="note-item">
-            <input class="note-title form-control-plaintext" readonly value="<?php echo esc_attr(get_the_title()); ?>">
+            <input class="note-title form-control-plaintext" readonly value="<?php echo str_replace('Private: ', '', esc_attr(get_the_title())); ?>">
             <div class="mt-3">
               <span class="btn btn-success edit-note">Edit</span>
               <span class="btn btn-danger delete-note">Delete</span>
             </div>
-            <textarea class="note-body form-control-plaintext mt-3 resize-none" readonly name="" id=""><?php echo esc_attr(wp_strip_all_tags(get_the_content())); ?></textarea>
+            <textarea class="note-body form-control-plaintext mt-3 resize-none" readonly name="" id=""><?php echo esc_textarea(wp_strip_all_tags(get_the_content())); ?></textarea>
             <span class="btn btn-success update-note d-none mt-3">Save</span>
           </li>
+          <hr>
        <?php }
       ?>
       </ul>

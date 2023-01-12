@@ -187,7 +187,8 @@ class Search {
     if (
       e.keyCode == 83 &&
       !this.isOverlayOpen &&
-      !$('input, textarea').is(':focus')
+      document.activeElement.tagName != 'INPUT' &&
+      document.activeElement.tagName != 'TEXTAREA'
     ) {
       this.openOverlay()
     }
@@ -198,12 +199,12 @@ class Search {
   }
 
   openOverlay() {
+    setTimeout(() => this.searchField.focus(), 300)
     this.searchOverlay.classList.remove('d-none')
     document.body.classList.add('body-no-scroll')
     this.searchField.value = ''
     console.log('our open method just ran!')
     this.isOverlayOpen = true
-    setTimeout(() => this.searchField.focus(), 300)
     return false
   }
 
