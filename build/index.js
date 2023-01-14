@@ -2053,6 +2053,92 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./src/modules/Like.js":
+/*!*****************************!*\
+  !*** ./src/modules/Like.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+
+class Like {
+  constructor() {
+    if (document.querySelector('.like-box')) {
+      this.likeBox = document.querySelector('.like-box');
+      (axios__WEBPACK_IMPORTED_MODULE_0___default().defaults.headers.common["X-WP-Nonce"]) = data.nonce;
+      this.events();
+    }
+  }
+  events() {
+    this.likeBox.addEventListener('click', e => this.clickDispatcher(e));
+  }
+
+  // Methods
+  clickDispatcher(e) {
+    let currentLikeBox = e.target.closest('.like-box');
+    // let currentLikeBox = e.target
+    // while (!currentLikeBox.classList.contains('like-box')) {
+    //   currentLikeBox = currentLikeBox.parentElement
+    // }
+
+    if (currentLikeBox.getAttribute('data-exists') == 'yes') {
+      // Call deleteLike
+      this.deleteLike(currentLikeBox);
+    } else {
+      // Call createLike
+      this.createLike(currentLikeBox);
+    }
+  }
+  async createLike(currentLikeBox) {
+    let professor = {
+      professorId: currentLikeBox.getAttribute('data-professor')
+    };
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0___default().post(data.root_url + '/wp-json/al-advogados/v1/manageLike', professor);
+      if (response.data != 'Only logged in users can create a like.') {
+        currentLikeBox.setAttribute('data-exists', 'yes');
+        let likeCount = parseInt(currentLikeBox.querySelector('.like-count').innerHTML, 10); // 10 = base 10
+        likeCount++;
+        currentLikeBox.querySelector('.like-count').innerHTML = likeCount;
+        currentLikeBox.setAttribute('data-like', response);
+      }
+      console.log('data', response.data);
+    } catch (e) {
+      console.log('error', e);
+    }
+  }
+  async deleteLike(currentLikeBox) {
+    let like = {
+      like: currentLikeBox.getAttribute('data-like')
+    };
+    try {
+      let response = await axios__WEBPACK_IMPORTED_MODULE_0___default()({
+        url: data.root_url + '/wp-json/al-advogados/v1/manageLike',
+        method: 'delete',
+        data: like
+      });
+      currentLikeBox.setAttribute('data-exists', 'no');
+      let likeCount = parseInt(currentLikeBox.querySelector('.like-count').innerHTML, 10); // 10 = base 10
+      likeCount--;
+      currentLikeBox.querySelector('.like-count').innerHTML = likeCount;
+      currentLikeBox.setAttribute('data-like', '');
+      const results = response.data;
+      console.log('results', results);
+    } catch (e) {
+      console.log('error', e);
+    }
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Like);
+
+/***/ }),
+
 /***/ "./src/modules/MyNotes.js":
 /*!********************************!*\
   !*** ./src/modules/MyNotes.js ***!
@@ -2072,7 +2158,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class MyNotes {
   constructor() {
-    if (document.querySelectore('#myNotes')) {
+    if (document.querySelector('#myNotes')) {
       (axios__WEBPACK_IMPORTED_MODULE_1___default().defaults.headers.common["X-WP-Nonce"]) = data.nonce;
       this.myNotes = document.querySelector('#myNotes');
       this.events();
@@ -2514,6 +2600,7 @@ var __webpack_exports__ = {};
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_Search__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/Search */ "./src/modules/Search.js");
 /* harmony import */ var _modules_MyNotes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/MyNotes */ "./src/modules/MyNotes.js");
+/* harmony import */ var _modules_Like__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/Like */ "./src/modules/Like.js");
 //import '../css/style.scss'
 
 // Our modules / classes
@@ -2521,10 +2608,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 // Instantiate a new object using our modules/classes
 //const googleMap = new GoogleMap()
 const search = new _modules_Search__WEBPACK_IMPORTED_MODULE_0__["default"]();
 const myNotes = new _modules_MyNotes__WEBPACK_IMPORTED_MODULE_1__["default"]();
+const like = new _modules_Like__WEBPACK_IMPORTED_MODULE_2__["default"]();
 })();
 
 /******/ })()

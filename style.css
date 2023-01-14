@@ -147,6 +147,22 @@ body.login {
   resize: none;
 }
 
+span[data-exists='no'] > svg.bi-heart-fill {
+  display: none;
+}
+
+span[data-exists='no'] > svg.bi-heart {
+  display: inline;
+}
+
+span[data-exists='yes'] > svg.bi-heart-fill {
+  display: inline;
+}
+
+span[data-exists='yes'] > svg.bi-heart {
+  display: none;
+}
+
 /* Personalized Classes */
 
 .header-banner {

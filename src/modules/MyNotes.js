@@ -3,7 +3,7 @@ import axios from 'axios'
 
 class MyNotes {
   constructor() {
-    if (document.querySelectore('#myNotes')) {
+    if (document.querySelector('#myNotes')) {
       axios.defaults.headers.common['X-WP-Nonce'] = data.nonce
       this.myNotes = document.querySelector('#myNotes')
       this.events()
