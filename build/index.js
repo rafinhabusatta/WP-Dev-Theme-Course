@@ -2150,72 +2150,52 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "jquery");
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
-
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 
 class MyNotes {
   constructor() {
     if (document.querySelector('#myNotes')) {
-      (axios__WEBPACK_IMPORTED_MODULE_1___default().defaults.headers.common["X-WP-Nonce"]) = data.nonce;
+      (axios__WEBPACK_IMPORTED_MODULE_0___default().defaults.headers.common["X-WP-Nonce"]) = data.nonce;
       this.myNotes = document.querySelector('#myNotes');
       this.events();
     }
   }
   events() {
-    // this.myNotes.addEventListener('click', '.delete-note', e =>
-    //   this.deleteNote(e)
-    // )
-    // this.myNotes.addEventListener('click', '.edit-note', e => this.editNote(e))
-    // this.myNotes.addEventListener('click', '.update-note', e =>
-    //   this.updateNote(e)
-    // )
-    // document
-    //   .querySelector('.create-note')
-    //   .addEventListener('click', () => this.createNote())
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#my-notes').on('click', '.delete-note', this.deleteNote);
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#my-notes').on('click', '.edit-note', this.editNote.bind(this));
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('#my-notes').on('click', '.update-note', this.updateNote.bind(this));
-    jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-note').on('click', this.createNote.bind(this));
+    this.myNotes.addEventListener('click', '.delete-note', e => this.deleteNote(e));
+    this.myNotes.addEventListener('click', '.edit-note', e => this.editNote(e));
+    this.myNotes.addEventListener('click', '.update-note', e => this.updateNote(e));
+    document.querySelector('.create-note').addEventListener('click', () => this.createNote());
   }
 
   // Methods
-  createNote() {
+  async createNote() {
     let newPost = {
-      title: jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-title').val(),
-      content: jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-body').val(),
+      title: document.querySelector('.create-title').value,
+      content: document.querySelector('.create-body').value,
       status: 'publish'
     };
-    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
-      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
-      // xhr = xml http request
-      url: data.root_url + '/wp-json/wp/v2/note/',
-      type: 'POST',
-      data: newPost,
-      success: response => {
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()('.create-title, .create-body').val('');
-        jquery__WEBPACK_IMPORTED_MODULE_0___default()(`<li data-id="${response.id}" class="note-item">
-        <input class="note-title form-control-plaintext" readonly value="${response.title.raw}">
-        <div class="mt-3">
-          <span class="btn btn-success edit-note">Edit</span>
-          <span class="btn btn-danger delete-note">Delete</span>
-        </div>
-        <textarea class="note-body form-control-plaintext mt-3 resize-none" readonly name="" id="">${response.content.raw}</textarea>
-        <span class="btn btn-success update-note d-none mt-3">Save</span>
-      </li>`).prependTo('#myNotes').hide().slideDown();
-        console.log('Congrats');
-        console.log(response);
-      },
-      error: response => {
-        if (response.responseText == 'Você atingiu o limite de criação de notas.') {
-          document.querySelector('.limit-message-note').classList.remove('d-none');
-        }
-        console.log('Sorry');
-        console.log(response);
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0___default().post(data.root_url + '/wp-json/wp/v2/note/', newPost);
+      if (response.data != 'Você atingiu o limite de criação de notas.') {
+        document.querySelector('.create-title').value = '';
+        document.querySelector('.create-body').value = '';
+        document.querySelector('#myNotes').insertAdjacentHTML('afterbegin', `<li data-id="${response.id}" class="note-item">
+            <input class="note-title form-control-plaintext" readonly value="${response.title.raw}">
+            <div class="mt-3">
+              <span class="btn btn-success edit-note">Edit</span>
+              <span class="btn btn-danger delete-note">Delete</span>
+            </div>
+            <textarea class="note-body form-control-plaintext mt-3 resize-none" readonly name="" id="">${response.content.raw}</textarea>
+            <span class="btn btn-success update-note d-none mt-3">Save</span>
+          </li>`);
       }
-    });
+    } catch (e) {
+      if (response.responseText == 'Você atingiu o limite de criação de notas.') {
+        document.querySelector('.limit-message-note').classList.remove('d-none');
+      }
+      console.log('Sorry', e);
+    }
   }
   editNote(e) {
     let thisNote = this.findNearestParentLi(e.target);
@@ -2241,59 +2221,36 @@ class MyNotes {
     thisNote.querySelector('.edit-note').html('Cancel');
     thisNote.setAttribute('data-state', 'editable');
   }
-  // async deleteNote(e) {
-  //   axios({
-  //     method: 'delete',
-  //     url: data.root_url + '/wp-json/wp/v2/note/103',
-  //     headers: {
-  //       'X-WP-Nonce': data.nonce
-  //     }
-  //   });
-  // }
-
-  deleteNote(e) {
-    let thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents('li');
-    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
-      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
-      // xhr = xml http request
-      url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
-      type: 'DELETE',
-      success: response => {
-        if (response.userNoteCount < 5) {
-          document.querySelector('.limit-message-note').classList.add('d-none');
-        }
-        thisNote.slideUp();
-        console.log('Congrats');
-        console.log(response);
-      },
-      error: response => {
-        console.log('Sorry');
-        console.log(response);
+  async deleteNote(e) {
+    let thisNote = this.findNearestParentLi(e.target);
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0___default()({
+        method: 'delete',
+        url: data.root_url + '/wp-json/wp/v2/note/103' + thisNote.getAttribute('data-id')
+      });
+      if (response.data.userNoteCount < 5) {
+        document.querySelector('.limit-message-note').classList.add('d-none');
       }
-    });
+    } catch (e) {
+      console.log(e);
+    }
   }
-  updateNote(e) {
-    let thisNote = jquery__WEBPACK_IMPORTED_MODULE_0___default()(e.target).parents('li');
+  async updateNote(e) {
+    let thisNote = this.findNearestParentLi(e.target);
     let updatedPost = {
-      title: thisNote.find('.note-title').val(),
-      content: thisNote.find('.note-body').val()
+      title: thisNote.querySelector('.note-title').value,
+      content: thisNote.querySelector('.note-body').value
     };
-    jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
-      beforeSend: xhr => xhr.setRequestHeader('X-WP-Nonce', data.nonce),
-      // xhr = xml http request
-      url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
-      type: 'POST',
-      data: updatedPost,
-      success: response => {
-        this.makeNoteReadOnly(thisNote);
-        console.log('Congrats');
-        console.log(response);
-      },
-      error: response => {
-        console.log('Sorry');
-        console.log(response);
-      }
-    });
+    try {
+      const response = await axios__WEBPACK_IMPORTED_MODULE_0___default()({
+        method: 'post',
+        url: data.root_url + '/wp-json/wp/v2/note/' + thisNote.getAttribute('data-id'),
+        data: updatedPost
+      });
+      this.makeNoteReadOnly(thisNote);
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (MyNotes);
@@ -2497,17 +2454,6 @@ class Search {
   }
 }
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Search);
-
-/***/ }),
-
-/***/ "jquery":
-/*!*************************!*\
-  !*** external "jQuery" ***!
-  \*************************/
-/***/ ((module) => {
-
-"use strict";
-module.exports = window["jQuery"];
 
 /***/ }),
 
